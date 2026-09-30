@@ -3,47 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iot-206 Cyberpunk Dashboard</title>
+    <title>iot-206 // PROJECT: EDGERUNNER</title>
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts for Cyberpunk look -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #0a0a0c; /* Very dark background */
-            --text-color: #00ffff; /* Neon cyan text */
-            --card-bg: #111116; /* Dark gray for cards */
-            --primary-color: #00ffff; /* Neon cyan */
-            --secondary-color: #fcee0a; /* Cyberpunk yellow */
+            --bg-color: #05040a; /* Deep space black */
+            --text-color: #e0e0e0; 
+            --card-bg: rgba(15, 15, 22, 0.7); /* Transparent for glassmorphism / see-through moon */
+            --primary-color: #fcee0a; /* Signature Edgerunners Yellow */
+            --secondary-color: #00ffff; /* Cyan */
             --success-color: #39ff14; /* Neon green */
-            --warning-color: #fcee0a; /* Cyberpunk yellow */
+            --warning-color: #ffaa00; /* Orange */
             --danger-color: #ff003c; /* Neon pink/red */
             --offline-color: #444;
-            --border-color: #333;
-            --gauge-bg: #222;
+            --border-color: rgba(252, 238, 10, 0.3);
+            --gauge-bg: rgba(255,255,255,0.1);
             
             /* Theme specific */
+            --cp-shadow-yellow: 4px 4px 0px rgba(252, 238, 10, 0.7);
             --cp-shadow-cyan: 4px 4px 0px rgba(0, 255, 255, 0.7);
             --cp-shadow-pink: 4px 4px 0px rgba(255, 0, 60, 0.7);
-            --cp-shadow-yellow: 4px 4px 0px rgba(252, 238, 10, 0.7);
         }
 
         body {
             font-family: 'Rajdhani', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            background-image: 
-                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px; /* Grid background */
             margin: 0;
             padding: 20px;
             text-transform: uppercase;
+            overflow-x: hidden;
         }
 
+        /* --- THE MOON & BACKGROUND EFFECTS --- */
+        .edgerunners-moon {
+            position: fixed;
+            top: 40px;
+            right: 8%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 
+                0 0 80px 15px rgba(255, 255, 255, 0.4),
+                0 0 120px 30px rgba(252, 238, 10, 0.15),
+                inset -30px -30px 50px rgba(0,0,0,0.6); 
+            z-index: -1;
+            background-image: 
+                radial-gradient(circle at 25% 30%, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.12) 10%, transparent 12%),
+                radial-gradient(circle at 75% 45%, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.08) 15%, transparent 18%),
+                radial-gradient(circle at 45% 75%, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.15) 20%, transparent 22%);
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.8));
+            animation: moon-pulse 5s infinite alternate ease-in-out;
+        }
+
+        @keyframes moon-pulse {
+            0% { filter: drop-shadow(0 0 15px rgba(255,255,255,0.6)); }
+            100% { filter: drop-shadow(0 0 30px rgba(255,255,255,1)); }
+        }
+
+        .cyber-grid {
+            position: fixed;
+            bottom: 0;
+            left: -50%;
+            width: 200%;
+            height: 50vh;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(600px) rotateX(70deg);
+            transform-origin: bottom;
+            z-index: -2;
+            -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+            mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+        }
+
+        /* --- TYPOGRAPHY --- */
         h1, h2, h3, .card-value {
             font-family: 'Orbitron', sans-serif;
             letter-spacing: 2px;
@@ -56,15 +98,22 @@
             margin-bottom: 30px;
             flex-wrap: wrap;
             gap: 15px;
-            border-bottom: 2px solid var(--danger-color);
+            border-bottom: 3px solid var(--primary-color);
             padding-bottom: 15px;
-            box-shadow: 0 5px 15px rgba(255,0,60,0.2);
+            box-shadow: 0 5px 20px rgba(252,238,10,0.1);
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
-            color: var(--secondary-color);
+            color: var(--bg-color);
+            background-color: var(--primary-color);
+            padding: 5px 15px;
             margin: 0;
-            text-shadow: 0 0 10px var(--secondary-color);
+            text-shadow: none;
+            display: inline-block;
+            box-shadow: var(--cp-shadow-cyan);
+            font-weight: 900;
         }
 
         .status-container {
@@ -72,16 +121,17 @@
             align-items: center;
             gap: 15px;
             background: var(--card-bg);
+            backdrop-filter: blur(5px);
             padding: 10px 20px;
-            border: 1px solid var(--text-color);
-            box-shadow: var(--cp-shadow-cyan);
+            border: 1px solid var(--secondary-color);
+            box-shadow: var(--cp-shadow-yellow);
             border-radius: 0;
         }
 
         .status-dot {
             width: 15px;
             height: 15px;
-            border-radius: 0; /* Square dot for cyberpunk */
+            border-radius: 0;
             background-color: var(--offline-color);
         }
         
@@ -90,30 +140,34 @@
             font-family: 'Orbitron', sans-serif;
         }
 
-        .online { border-color: var(--success-color); box-shadow: 4px 4px 0px rgba(57, 255, 20, 0.7); }
+        .online { border-color: var(--secondary-color); box-shadow: var(--cp-shadow-cyan); }
         .offline { border-color: var(--danger-color); box-shadow: var(--cp-shadow-pink); }
-        .online .status-dot { background-color: var(--success-color); box-shadow: 0 0 10px var(--success-color); }
+        .online .status-dot { background-color: var(--secondary-color); box-shadow: 0 0 10px var(--secondary-color); }
         .offline .status-dot { background-color: var(--danger-color); box-shadow: 0 0 10px var(--danger-color); }
-        .online .status-text { color: var(--success-color); text-shadow: 0 0 5px var(--success-color); }
+        .online .status-text { color: var(--secondary-color); text-shadow: 0 0 5px var(--secondary-color); }
         .offline .status-text { color: var(--danger-color); text-shadow: 0 0 5px var(--danger-color); }
 
         .update-time {
             font-size: 0.9em;
-            color: #aaa;
+            color: #ccc;
         }
 
+        /* --- ALERTS --- */
         .alerts {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
         }
 
         .alert {
             padding: 15px;
-            background-color: #1a0005;
+            background-color: rgba(26, 0, 5, 0.85);
+            backdrop-filter: blur(5px);
             border: 1px solid var(--danger-color);
-            color: var(--secondary-color);
+            color: var(--primary-color);
             display: none;
             align-items: center;
             gap: 15px;
@@ -129,7 +183,7 @@
 
         @keyframes glitch {
             0% { box-shadow: var(--cp-shadow-pink); }
-            50% { box-shadow: -2px 2px 0px rgba(255, 0, 60, 0.9), 2px -2px 0px rgba(0, 255, 255, 0.9); }
+            50% { box-shadow: -3px 3px 0px rgba(255, 0, 60, 0.9), 3px -3px 0px rgba(0, 255, 255, 0.9); }
             100% { box-shadow: var(--cp-shadow-pink); }
         }
 
@@ -139,8 +193,11 @@
             text-shadow: 0 0 10px var(--danger-color);
         }
 
+        /* --- CARDS & GRIDS --- */
         .grid, .gauges, .charts-stats-container {
             margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
         }
 
         .grid {
@@ -149,33 +206,34 @@
             gap: 25px;
         }
 
-        /* Generic base card style */
         .card, .gauge-card, .chart-card, .stats-card {
             background-color: var(--card-bg);
-            border: 1px solid var(--primary-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--secondary-color);
             padding: 20px;
             position: relative;
-            box-shadow: var(--cp-shadow-cyan);
+            box-shadow: var(--cp-shadow-yellow);
             transition: all 0.3s ease;
             border-radius: 0;
         }
 
         .card:hover, .gauge-card:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px rgba(0, 255, 255, 0.9);
+            transform: translate(-2px, -2px) scale(1.02);
+            box-shadow: 8px 8px 0px rgba(252, 238, 10, 0.9);
+            border-color: var(--primary-color);
         }
 
-        /* Glitch decorative element on cards */
         .card::after, .gauge-card::after, .chart-card::after, .stats-card::after {
             content: '';
             position: absolute;
             top: 0;
             right: 0;
-            width: 15px;
-            height: 15px;
-            border-bottom: 1px solid var(--secondary-color);
-            border-left: 1px solid var(--secondary-color);
-            background: rgba(252, 238, 10, 0.2);
+            width: 20px;
+            height: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            border-left: 2px solid var(--primary-color);
+            background: rgba(252, 238, 10, 0.1);
         }
 
         .card {
@@ -188,35 +246,37 @@
         .card-icon {
             font-size: 2.5em;
             margin-bottom: 15px;
-            filter: drop-shadow(0 0 5px currentColor);
+            filter: drop-shadow(0 0 8px currentColor);
         }
 
         .card-title {
             font-size: 1.1em;
-            color: #aaa;
+            color: #ddd;
             margin-bottom: 10px;
             letter-spacing: 2px;
+            background: #000;
+            padding: 2px 10px;
+            border-left: 2px solid var(--secondary-color);
         }
 
         .card-value {
             font-size: 2.8em;
             font-weight: bold;
             margin-bottom: 5px;
-            color: var(--text-color);
-            text-shadow: 0 0 8px var(--text-color);
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(252, 238, 10, 0.5);
         }
 
         .card-unit {
             font-size: 1.2em;
-            color: #777;
+            color: #aaa;
         }
 
-        /* Color classes for values */
-        .val-normal { color: var(--success-color); text-shadow: 0 0 8px var(--success-color); }
-        .val-warning { color: var(--warning-color); text-shadow: 0 0 8px var(--warning-color); border-color: var(--warning-color); box-shadow: var(--cp-shadow-yellow); }
+        .val-normal { color: var(--primary-color); text-shadow: 0 0 8px var(--primary-color); }
+        .val-warning { color: var(--warning-color); text-shadow: 0 0 8px var(--warning-color); border-color: var(--warning-color); box-shadow: var(--cp-shadow-cyan); }
         .val-danger { color: var(--danger-color); text-shadow: 0 0 8px var(--danger-color); border-color: var(--danger-color); box-shadow: var(--cp-shadow-pink); }
 
-        /* Gauges */
+        /* --- GAUGES --- */
         .gauges {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -227,18 +287,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            border-color: var(--secondary-color);
-            box-shadow: var(--cp-shadow-yellow);
-        }
-        
-        .gauge-card:hover {
-            box-shadow: 6px 6px 0px rgba(252, 238, 10, 0.9);
+            border-color: var(--primary-color);
+            box-shadow: var(--cp-shadow-cyan);
         }
 
         .gauge-card h3 {
-            color: var(--secondary-color);
-            text-shadow: 0 0 5px var(--secondary-color);
+            color: var(--bg-color);
+            background-color: var(--secondary-color);
+            padding: 2px 10px;
+            text-shadow: none;
             margin-top: 0;
+            letter-spacing: 1px;
         }
 
         .circular-gauge {
@@ -251,18 +310,18 @@
             justify-content: center;
             margin: 15px 0;
             position: relative;
-            box-shadow: 0 0 15px rgba(0,255,255,0.2);
-            border: 2px solid #333;
+            box-shadow: 0 0 20px rgba(0,255,255,0.1);
+            border: 2px solid var(--border-color);
         }
 
         .circular-gauge::before {
             content: "";
             position: absolute;
-            width: 110px;
-            height: 110px;
-            background-color: var(--card-bg);
+            width: 100px;
+            height: 100px;
+            background-color: #0b0914; /* solid to block gradient */
             border-radius: 50%;
-            border: 2px solid #222;
+            border: 2px solid var(--secondary-color);
         }
 
         .gauge-value {
@@ -273,6 +332,7 @@
             text-shadow: 0 0 8px currentColor;
         }
 
+        /* --- CHARTS & STATS --- */
         .charts-stats-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -289,6 +349,8 @@
             color: var(--primary-color);
             text-shadow: 0 0 5px var(--primary-color);
             margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
         }
 
         .chart-container {
@@ -306,7 +368,7 @@
         .stats-table th, .stats-table td {
             padding: 12px;
             text-align: right;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px dashed var(--border-color);
         }
 
         .stats-table th {
@@ -319,37 +381,43 @@
         .stats-table td:first-child {
             text-align: left;
             font-weight: bold;
-            color: #aaa;
+            color: #ddd;
         }
         
         .stats-table td {
-            color: var(--text-color);
+            color: var(--primary-color);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
+    <!-- Edgerunners Signature Background Elements -->
+    <div class="edgerunners-moon"></div>
+    <div class="cyber-grid"></div>
+
     <div class="header">
-        <h1><i class="fa-solid fa-microchip"></i> iot-206 SYSTEM</h1>
+        <h1><i class="fa-solid fa-moon"></i> IOT-206 // PROJECT: EDGERUNNER</h1>
         <div id="statusIndicator" class="status-container offline">
             <div class="status-dot"></div>
-            <div class="status-text" id="statusText">LINK LOST</div>
+            <div class="status-text" id="statusText">NEUROLINK LOST</div>
             <div class="update-time" id="updateTime">SYNC: --:--:--</div>
         </div>
     </div>
 
     <div class="alerts" id="alertsContainer">
         <div class="alert" id="alert-temp">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span><strong>CRITICAL TEMP!</strong> ( > 35 °C ) COOLING SYSTEM REQUIRED</span>
+            <i class="fa-solid fa-fire"></i>
+            <span><strong>CRITICAL SANDEVISTAN OVERHEAT!</strong> ( > 35 °C ) COOL DOWN REQUIRED</span>
         </div>
         <div class="alert" id="alert-soil">
             <i class="fa-solid fa-droplet-slash"></i>
-            <span><strong>SOIL DRY!</strong> ( < 30% ) IRRIGATION OVERRIDE RECOMMENDED</span>
+            <span><strong>SOIL MOISTURE DEPLETED!</strong> ( < 30% ) DEPLOYING HYDRATION PROTOCOL</span>
         </div>
         <div class="alert" id="alert-pm25">
-            <i class="fa-solid fa-smog"></i>
-            <span><strong>TOXIC AIR DETECTED!</strong> ( > 50 µg/m³ ) AIR FILTRATION NEEDED</span>
+            <i class="fa-solid fa-biohazard"></i>
+            <span><strong>TOXIC NIGHT CITY AIR DETECTED!</strong> ( > 50 µg/m³ ) ENGAGE FILTRATION</span>
         </div>
     </div>
 
@@ -363,21 +431,21 @@
         </div>
         <!-- Humidity -->
         <div class="card">
-            <i class="fa-solid fa-droplet card-icon" style="color: var(--primary-color);"></i>
-            <div class="card-title">ATMOS HUMIDITY</div>
+            <i class="fa-solid fa-droplet card-icon" style="color: var(--secondary-color);"></i>
+            <div class="card-title">ATMOS HUMID</div>
             <div class="card-value" id="val-hum">--</div>
             <div class="card-unit">%</div>
         </div>
         <!-- Soil Moisture -->
         <div class="card">
-            <i class="fa-solid fa-seedling card-icon" style="color: var(--success-color);"></i>
-            <div class="card-title">SOIL MOISTURE</div>
+            <i class="fa-solid fa-seedling card-icon" style="color: var(--primary-color);"></i>
+            <div class="card-title">SOIL STATUS</div>
             <div class="card-value" id="val-soil">--</div>
             <div class="card-unit">%</div>
         </div>
         <!-- Light -->
         <div class="card">
-            <i class="fa-regular fa-sun card-icon" style="color: var(--secondary-color);"></i>
+            <i class="fa-regular fa-sun card-icon" style="color: var(--warning-color);"></i>
             <div class="card-title">LUMINOSITY</div>
             <div class="card-value" id="val-light">--</div>
             <div class="card-unit">LUX</div>
@@ -385,14 +453,14 @@
         <!-- PM 2.5 -->
         <div class="card">
             <i class="fa-solid fa-wind card-icon" style="color: #b000ff;"></i>
-            <div class="card-title">AIR PARTICLES (PM2.5)</div>
+            <div class="card-title">AIR (PM2.5)</div>
             <div class="card-value" id="val-pm25">--</div>
             <div class="card-unit">µg/m³</div>
         </div>
         <!-- RSSI -->
         <div class="card">
             <i class="fa-solid fa-wifi card-icon" style="color: #fff;"></i>
-            <div class="card-title">SIGNAL STR (RSSI)</div>
+            <div class="card-title">SIGNAL STR</div>
             <div class="card-value" id="val-rssi">--</div>
             <div class="card-unit">dBm</div>
         </div>
@@ -400,23 +468,23 @@
 
     <div class="gauges">
         <div class="gauge-card">
-            <h3>CORE TEMP</h3>
+            <h3>TEMP LOAD</h3>
             <div class="circular-gauge" id="gauge-temp" style="--primary-color: var(--danger-color);">
                 <span class="gauge-value" style="color: var(--danger-color);"><span id="gval-temp">0</span>°C</span>
             </div>
             <small>0 - 50 °C</small>
         </div>
         <div class="gauge-card">
-            <h3>ATMOS HUMIDITY</h3>
-            <div class="circular-gauge" id="gauge-hum" style="--primary-color: var(--primary-color);">
-                <span class="gauge-value" style="color: var(--primary-color);"><span id="gval-hum">0</span>%</span>
+            <h3>HUMIDITY</h3>
+            <div class="circular-gauge" id="gauge-hum" style="--primary-color: var(--secondary-color);">
+                <span class="gauge-value" style="color: var(--secondary-color);"><span id="gval-hum">0</span>%</span>
             </div>
             <small>0 - 100 %</small>
         </div>
         <div class="gauge-card">
-            <h3>SOIL MOISTURE</h3>
-            <div class="circular-gauge" id="gauge-soil" style="--primary-color: var(--success-color);">
-                <span class="gauge-value" style="color: var(--success-color);"><span id="gval-soil">0</span>%</span>
+            <h3>SOIL LEVEL</h3>
+            <div class="circular-gauge" id="gauge-soil" style="--primary-color: var(--primary-color);">
+                <span class="gauge-value" style="color: var(--primary-color);"><span id="gval-soil">0</span>%</span>
             </div>
             <small>0 - 100 %</small>
         </div>
@@ -444,25 +512,25 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>TEMP (°C)</td>
+                            <td>TEMP</td>
                             <td id="stat-temp-min">--</td>
                             <td id="stat-temp-max">--</td>
                             <td id="stat-temp-avg">--</td>
                         </tr>
                         <tr>
-                            <td>HUM (%)</td>
+                            <td>HUMID</td>
                             <td id="stat-hum-min">--</td>
                             <td id="stat-hum-max">--</td>
                             <td id="stat-hum-avg">--</td>
                         </tr>
                         <tr>
-                            <td>SOIL (%)</td>
+                            <td>SOIL</td>
                             <td id="stat-soil-min">--</td>
                             <td id="stat-soil-max">--</td>
                             <td id="stat-soil-avg">--</td>
                         </tr>
                         <tr>
-                            <td>LIGHT (LX)</td>
+                            <td>LIGHT</td>
                             <td id="stat-light-min">--</td>
                             <td id="stat-light-max">--</td>
                             <td id="stat-light-avg">--</td>
@@ -487,14 +555,12 @@
         let evtSource = null;
         let pollingInterval = null;
 
-        // Cyberpunk colors for JS
         const gridColor = '#333';
         const tickColor = '#00ffff';
 
         document.addEventListener("DOMContentLoaded", () => {
             initChart();
             startApp();
-            
             setInterval(checkConnectionStatus, 1000);
         });
 
@@ -602,7 +668,7 @@
             
             updateGauge('gauge-temp', 'gval-temp', data.temperature, 0, 50, '#ff003c');
             updateGauge('gauge-hum', 'gval-hum', data.humidity, 0, 100, '#00ffff');
-            updateGauge('gauge-soil', 'gval-soil', data.soil, 0, 100, '#39ff14');
+            updateGauge('gauge-soil', 'gval-soil', data.soil, 0, 100, '#fcee0a');
             
             toggleAlert('alert-temp', data.temperature > 35);
             toggleAlert('alert-soil', data.soil < 30);
@@ -661,7 +727,7 @@
             
             if (lastTimestamp === 0 || (now - lastTimestamp) > 20000) {
                 container.className = 'status-container offline';
-                text.innerText = 'LINK LOST';
+                text.innerText = 'NEUROLINK LOST';
             } else {
                 container.className = 'status-container online';
                 text.innerText = 'LINK ESTABLISHED';
@@ -686,7 +752,7 @@
                             backgroundColor: 'rgba(255, 0, 60, 0.1)',
                             data: [],
                             yAxisID: 'y',
-                            tension: 0, // Cyberpunk sharp lines
+                            tension: 0,
                             borderWidth: 2,
                             pointBackgroundColor: '#ff003c',
                             fill: true
@@ -702,12 +768,12 @@
                         },
                         {
                             label: 'SOIL',
-                            borderColor: '#39ff14',
+                            borderColor: '#fcee0a',
                             data: [],
                             yAxisID: 'y',
                             tension: 0,
                             borderWidth: 2,
-                            pointBackgroundColor: '#39ff14'
+                            pointBackgroundColor: '#fcee0a'
                         }
                     ]
                 },
